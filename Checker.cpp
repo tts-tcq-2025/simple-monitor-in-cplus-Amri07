@@ -15,10 +15,17 @@ struct BatteryParameter {
 };
 
 bool checkParameter(const BatteryParameter& param) {
-    if((param.checkMin && param.value < param.min) ||
-       (param.checkMax && param.value > param.max)) {
-        cout << param.outOfRangeMsg << endl;
-        return false;
+    if(param.checkMin) {
+        if(param.value < param.min) {
+            cout << param.outOfRangeMsg << endl;
+            return false;
+        }
+    }
+    if(param.checkMax) {
+        if(param.value > param.max) {
+            cout << param.outOfRangeMsg << endl;
+            return false;
+        }
     }
     return true;
 }
