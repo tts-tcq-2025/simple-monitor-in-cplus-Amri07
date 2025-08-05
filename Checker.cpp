@@ -1,38 +1,46 @@
-#include <assert.h>
 #include <iostream>
+#include <vector>
+#include <functional>
+#include <assert.h>
+#include <cfloat>
 using namespace std;
 
-bool Temperature(float temperature)
-{
-    if(temperature < 0 || temperature > 45) {
-        cout << "Temperature out of range!\n";
-        return false; 
-    }
-    return true;
-}
+struct BatteryParameter {
+    float value;
+    bool checkMin;
+    float min;
+    bool checkMax;
+    float max;
+    const char* outOfRangeMsg;
+};
 
-bool SOC(float soc)
-{
-    if(soc < 20 || soc > 80) {
-        cout << "State of Charge out of range\n";
-        return false; 
+bool checkParameter(const BatteryParameter& param) {
+    if(param.checkMin && param.value < param.min) {
+        cout << param.outOfRangeMsg << endl;
+        return false;
     }
-    return true;
-}
-
-bool ChargeRate(float chargeRate)
-{
-    if(chargeRate > 0.8){
-        cout << "Charge Rate out of range!\n";
+    if(param.checkMax && param.value > param.max) {
+        cout << param.outOfRangeMsg << endl;
         return false;
     }
     return true;
 }
+
 bool batteryIsOk(float temperature, float soc, float chargeRate) {
-    return Temperature(temperature) && SOC(soc) && ChargeRate(chargeRate);
+    vector<BatteryParameter> params = {
+        {temperature, true, 0, true, 45, "Temperature out of range!"},
+        {soc, false, 0, true, 80, "State of Charge out of range"},
+        {chargeRate, true, 0, true, 0.8, "Charge Rate out of range!"}
+    };
+    for(const auto& param : params) {
+        if(!checkParameter(param)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 int main() {
-  assert(batteryIsOk(25, 70, 0.7) == true);
-  assert(batteryIsOk(50, 85, 0) == false);
+    assert(batteryIsOk(25, 70, 0.7) == true);
+    assert(batteryIsOk(50, 85, 0) == false);
 }
